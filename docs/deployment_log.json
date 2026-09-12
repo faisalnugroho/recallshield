@@ -1,0 +1,214 @@
+{
+  "started": "2026-09-12T16:51:12Z",
+  "runs": [
+    {
+      "step": "CASE1-positive",
+      "tx": "0x23e8b9aaa5c9c0577c8fe3284458c150fd9c9a2c415f7ac799dd200b0f93c3d4",
+      "case_id": "rs000001",
+      "vid": "rs000001-v002",
+      "status": "RECALLED",
+      "expected": "RECALLED",
+      "match_type": "EXACT",
+      "reason_code": "EXACT_PRODUCT_MATCH",
+      "manufacturer_match": true,
+      "model_match": true,
+      "recall_reference": "26-223",
+      "authority_class": "REGULATOR",
+      "evidence_fingerprint": "38cdf6ba7441897a530eff77ce91e902a018dfc77de0a828c0ee4ba86e717f37",
+      "verification_count": "2",
+      "created_at": "1789202632",
+      "verified_at": "1789203117",
+      "source_results": [
+        {
+          "i": "0",
+          "status": "RECALLED",
+          "reason_code": "EXACT_PRODUCT_MATCH",
+          "authority_class": "REGULATOR",
+          "manufacturer_match": true,
+          "model_match": true
+        }
+      ]
+    },
+    {
+      "step": "CASE2-negative",
+      "tx": "0x862710be5fe25054f7760c8c8998ee12e2b82a71f307469eb085b24b80951336",
+      "case_id": "rs000002",
+      "vid": "rs000002-v002",
+      "status": "NO_RECALL_FOUND",
+      "expected": "NO_RECALL_FOUND",
+      "match_type": "NONE",
+      "reason_code": "NO_RECALL_PRESENT",
+      "manufacturer_match": false,
+      "model_match": false,
+      "recall_reference": "",
+      "authority_class": "REGULATOR",
+      "evidence_fingerprint": "ba8fa295dc7b8234d1075360984587b5495caaa55be8570b36049ee69f09f78a",
+      "verification_count": "2",
+      "created_at": "1789202733",
+      "verified_at": "1789203213",
+      "source_results": [
+        {
+          "i": "0",
+          "status": "NO_RECALL_FOUND",
+          "reason_code": "NO_RECALL_PRESENT",
+          "authority_class": "REGULATOR",
+          "manufacturer_match": false,
+          "model_match": false
+        }
+      ]
+    },
+    {
+      "step": "CASE3-authority",
+      "tx": "0xe710d10894ba3d52efa3a471728afeeeee5d2db5f5ce02206238bec22d975cdf",
+      "case_id": "rs000003",
+      "vid": "rs000003-v002",
+      "status": "INCONCLUSIVE",
+      "expected": "INCONCLUSIVE",
+      "match_type": "NONE",
+      "reason_code": "SOURCE_NOT_RECALL_EVIDENCE",
+      "manufacturer_match": false,
+      "model_match": false,
+      "recall_reference": "",
+      "authority_class": "MEDIA",
+      "evidence_fingerprint": "b95c553a875ad639dd8655a7e22ecd74ecc45ae37e5eb524fe2712addb89a016",
+      "verification_count": "2",
+      "created_at": "1789202834",
+      "verified_at": "1789203299",
+      "source_results": [
+        {
+          "i": "0",
+          "status": "INCONCLUSIVE",
+          "reason_code": "SOURCE_NOT_RECALL_EVIDENCE",
+          "authority_class": "MEDIA",
+          "manufacturer_match": false,
+          "model_match": false
+        }
+      ]
+    },
+    {
+      "step": "CASE4-partial",
+      "tx": "0xae1492abc7b85beaa10911bc559d4a9dc7437b84efe0fd7923c7b9aaa8d6c4fa",
+      "case_id": "rs000004",
+      "vid": "rs000004-v002",
+      "status": "PARTIAL_MATCH",
+      "expected": "PARTIAL_MATCH",
+      "match_type": "PARTIAL",
+      "reason_code": "RELATED_ONLY",
+      "manufacturer_match": true,
+      "model_match": false,
+      "recall_reference": "",
+      "authority_class": "MANUFACTURER",
+      "evidence_fingerprint": "930eaf62ad3d9d29d9264125639788b5d524e75844f4d7f3c9fbc22032f87a5e",
+      "verification_count": "2",
+      "created_at": "1789202934",
+      "verified_at": "1789203395",
+      "source_results": [
+        {
+          "i": "0",
+          "status": "PARTIAL_MATCH",
+          "reason_code": "RELATED_ONLY",
+          "authority_class": "MANUFACTURER",
+          "manufacturer_match": true,
+          "model_match": false
+        }
+      ]
+    },
+    {
+      "step": "CASE5-recovery",
+      "tx": "0x2640bd92a8576b9aaf7f72d466ff87ad00f4cf3996652dfacad55d9b4807907a",
+      "case_id": "rs000005",
+      "vid": "rs000005-v001",
+      "status": "SOURCE_UNAVAILABLE",
+      "expected": "SOURCE_UNAVAILABLE",
+      "match_type": "NONE",
+      "reason_code": "ALL_SOURCES_UNAVAILABLE",
+      "manufacturer_match": false,
+      "model_match": false,
+      "recall_reference": "",
+      "authority_class": "",
+      "evidence_fingerprint": "3c934aa90a82219cdd404331706683df31ca2d2bfeea3ca3340ec964f415f940",
+      "verification_count": "1",
+      "created_at": "1789203042",
+      "verified_at": "1789203513",
+      "source_results": [
+        {
+          "i": "0",
+          "status": "SOURCE_UNAVAILABLE",
+          "reason_code": "SOURCE_FETCH_FAILED",
+          "authority_class": "UNKNOWN",
+          "manufacturer_match": false,
+          "model_match": false
+        }
+      ]
+    },
+    {
+      "step": "V1-realworld",
+      "tx": "0x3ccdd223bf96e4f321652806917e0a8854697c0cdb93cf95a5928cd8c0e307c2",
+      "case_id": "rs000006",
+      "vid": "rs000006-v001",
+      "status": "SOURCE_UNAVAILABLE",
+      "expected": "RECALLED",
+      "match_type": "NONE",
+      "reason_code": "ALL_SOURCES_UNAVAILABLE",
+      "manufacturer_match": false,
+      "model_match": false,
+      "recall_reference": "",
+      "authority_class": "",
+      "evidence_fingerprint": "f10ed23bbbfcf78106455992c90937d6cc272193e6cde15ab78a003802b5c6e7",
+      "verification_count": "1",
+      "created_at": "1789203563",
+      "verified_at": "1789203598",
+      "source_results": [
+        {
+          "i": "0",
+          "status": "SOURCE_UNAVAILABLE",
+          "reason_code": "SOURCE_FETCH_BAD_STATUS",
+          "authority_class": "UNKNOWN",
+          "manufacturer_match": false,
+          "model_match": false
+        }
+      ],
+      "note": "real-world live site; expected RECALLED if validators can fetch it and the page reads as an official manufacturer recall notice; any uncertainty outcome is recorded as-is"
+    },
+    {
+      "step": "V2-realworld",
+      "tx": "0x0124ca8257ce0d90e32119df9d038d4174cda6ce7951b3398f6c8cfd9ae9f0b0",
+      "case_id": "rs000007",
+      "vid": "rs000007-v001",
+      "status": "RECALLED",
+      "expected": "RECALLED",
+      "match_type": "EXACT",
+      "reason_code": "EXACT_PRODUCT_MATCH",
+      "authority_class": "MANUFACTURER",
+      "manufacturer_match": true,
+      "model_match": true,
+      "recall_reference": "",
+      "recall_date": "2019-01-10",
+      "evidence_fingerprint": "e571edf80e5639197809c726ede592d8a1dfb6ea5556fe408dbd5c820e7e0729",
+      "source_results": [
+        {
+          "i": "0",
+          "status": "RECALLED",
+          "reason_code": "EXACT_PRODUCT_MATCH",
+          "authority_class": "MANUFACTURER",
+          "manufacturer_match": true,
+          "model_match": true
+        }
+      ],
+      "note": "real-world live site (dewalt.com official recall notice for DWD110/DWD112, recall dated 2019-01-10, done in cooperation with US CPSC). Supersedes V1 probe whose target page 404s; V1 outcome SOURCE_UNAVAILABLE was CORRECT conservative behavior and remains in history."
+    }
+  ],
+  "deploy": {
+    "tx": "0x3794c67693a42a0fd9482921e4da2443a1c60afee6184a967b864b148d3644b8",
+    "address": "0xA58D33605865a096eEAE999F4591fC78Fc021B1f",
+    "code_sha256_16": "35a27e1a27c1d8c4",
+    "note": "attached; deployment happened once, code byte-identical to commit bad1403"
+  },
+  "stats": {
+    "schema_version": "1.0",
+    "case_count": "7",
+    "verification_count": "11"
+  },
+  "finished": "2026-09-12T17:12:27Z",
+  "all_expected_met": false
+}

@@ -2,3 +2,5 @@ __pycache__/
 *.pyc
 .pytest_cache/
 artifacts/
+scripts/.deployer.json
+docs/*_output.txt
