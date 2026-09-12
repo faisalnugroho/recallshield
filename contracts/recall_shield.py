@@ -919,13 +919,33 @@ def _failure_pipeline(case, stage, error_code):
     # Well-formed failure result for ANY unexpected pipeline crash —
     # never a recall status, never a negative finding. Consensus-
     # compared via stage + error_code (TokenScope-proven pattern).
+    # per_source carries one explicit INCONCLUSIVE entry per
+    # registered source so the persistence contract (>=1 source
+    # result) is satisfied and the failure STATE PERSISTS as
+    # documented — a crash must never become an uncontrolled revert
+    # after consensus has already accepted the failure result.
+    n = len(case["source_urls"])
+    per_source = [{
+        "index": i,
+        "status": ST_INCONCLUSIVE,
+        "reason_code": RC_PIPELINE_CRASH,
+        "match_type": MT_NONE,
+        "authority_class": AUTH_UNKNOWN,
+        "authority_observed": "",
+        "manufacturer_match": False,
+        "model_match": False,
+        "recall_reference": "",
+        "ref_norm": "",
+        "recall_date": "",
+        "excerpt": "",
+    } for i in range(n)]
     return {
         "schema_version": SCHEMA_VERSION,
         "case_id": case["case_id"],
         "case_fingerprint": case["case_fingerprint"],
         "combined": {"status": ST_INCONCLUSIVE, "match_type": MT_NONE,
                      "reason_code": RC_PIPELINE_CRASH, "deciding": -1},
-        "per_source": [],
+        "per_source": per_source,
         "canonical": {
             "schema_version": SCHEMA_VERSION,
             "case_fingerprint": case["case_fingerprint"],
