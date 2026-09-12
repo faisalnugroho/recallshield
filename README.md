@@ -104,7 +104,7 @@ appended, never rewritten. Re-verification cannot mutate history.
 ## Testing
 
 ```bash
-python -m pytest tests/direct/ -q        # 59/59 direct-mode tests
+python -m pytest tests/direct/ -q        # 75/75 direct-mode tests
 genvm-lint check contracts/recall_shield.py   # 3 checks pass
 ```
 

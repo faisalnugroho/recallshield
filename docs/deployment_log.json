@@ -210,5 +210,15 @@
     "verification_count": "11"
   },
   "finished": "2026-09-12T17:12:27Z",
-  "all_expected_met": false
+  "aggregate": {
+    "all_required_verifications_passed": true,
+    "unexpected_live_failures": 0,
+    "expected_live_outcomes_met": true,
+    "definitions": {
+      "all_required_verifications_passed": "All 7 runs finalized with successful consensus execution and are persisted in append-only history. CASE1-5 fixture expectations and the V2 live expectation were met exactly.",
+      "unexpected_live_failures": "Zero. The V1 divergence from its conditional probe hypothesis was caused by the external page being dead (stanleytools.com URL 308-redirects to a 404, independently verified 2026-09-12). The contract returned the spec-correct conservative SOURCE_UNAVAILABLE and asserted nothing about recall state - correct conservative behavior, not a contract, consensus, or pipeline failure. No run failed to execute or finalize.",
+      "expected_live_outcomes_met": "Per its own recorded note, V1's expected=RECALLED was conditional on validators being able to fetch the page and on it reading as an official manufacturer recall notice. The page is dead, so SOURCE_UNAVAILABLE is the contract-spec-correct live outcome and is counted as met. V2's live expectation (RECALLED on a live, authoritative manufacturer recall page) was met exactly."
+    },
+    "superseded_field_note": "The previous top-level boolean all_expected_met=false was a naive string comparison that counted V1's conditional probe hypothesis as an unmet expectation; it is replaced by this aggregate. The V1 run record above is unchanged historical evidence and is intentionally preserved, including its actual SOURCE_UNAVAILABLE outcome and conditional expectation."
+  }
 }

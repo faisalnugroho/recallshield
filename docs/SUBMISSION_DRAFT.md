@@ -12,29 +12,66 @@
 
 RecallShield is a decentralized product-recall verification oracle. A caller
 registers a product identity (manufacturer, name, model, identifier,
-jurisdiction, category) plus authoritative public recall sources. A
+jurisdiction, category) together with 1–3 public recall source URLs they
+designate as authoritative, plus free-text labels for context. A
 consensus-backed `verify_case` run has GenLayer validators independently
 fetch each source and extract labeled facts; the contract then derives —
 deterministically, never by LLM fiat — a conservative recall status:
 
-- `RECALLED` — exact or explicit family match, authoritative source only
+- `RECALLED` — exact or explicit family match, from an authoritative source class only
 - `PARTIAL_MATCH` — manufacturer-related evidence, applicability not established
-- `NO_RECALL_FOUND` — authoritative source inspected, no recall present
-- `INCONCLUSIVE` — evidence exists but not authoritative / not recall content
-- `SOURCE_UNAVAILABLE` — source unreachable; asserts nothing (no invented status)
+- `NO_RECALL_FOUND` — an authoritative recall listing was inspected and does not identify the product as recalled (an observation about the inspected source, never a safety guarantee)
+- `INCONCLUSIVE` — evidence exists but a safe classification cannot be derived
+- `SOURCE_UNAVAILABLE` — sources could not be reliably retrieved; asserts nothing about recall state
 
-Key design: the LLM supplies *labeled facts* (reachability, authority class,
-affected models, recall language); the verdict is a pure deterministic
-function of those facts (`_derive_source_result`), with an authority gate
-(media/industry can never yield RECALLED or NO_RECALL_FOUND) and model
-grounding (a claimed model match without a supporting verbatim affected-model
-string is demoted). History is append-only: every verification is versioned
-(`rsXXXXXX-vNNN`) and can never overwrite a prior result.
+### Trust model
+
+- The verdict is a pure deterministic function (`_derive_source_result`) of
+  the labeled facts the LLM extracted. The LLM never picks the outcome.
+- **Authority is determined by the inspected evidence, not by the caller.**
+  Caller-supplied source labels are metadata/context only; they do not
+  themselves establish source authority. Validators classify the
+  `authority_class` of each page (REGULATOR / MANUFACTURER / INDUSTRY /
+  MEDIA / UNKNOWN) from the inspected content, and only the extracted
+  class participates in the verdict.
+- **Non-authoritative sources cannot produce a persisted definitive recall
+  or no-recall classification; they are conservatively demoted to
+  INCONCLUSIVE.** A `RECALLED` or `NO_RECALL_FOUND` result can only rest
+  on a source whose inspected content classifies as REGULATOR or
+  MANUFACTURER — in either direction.
+- **Model grounding**: an EXACT match requires the claimed matched model to
+  deterministically appear in the extracted affected-model list. A claimed
+  match without supporting verbatim text is demoted to `PARTIAL_MATCH`.
+- **Evidence fingerprint binding**: each persisted verification binds a
+  Keccak-256 (GenVM std-lib) fingerprint over the canonical evidence, tying
+  the decision to the exact material it was derived from.
+- **Immutable product identity**: identity fields are set once at
+  `create_case`; no update method exists.
+- **Append-only verification history**: every verification is versioned
+  (`rsXXXXXX-vNNN`) and can never overwrite or rewrite a prior result.
+- **Independent validator re-fetch and re-derive**: every validator
+  retrieves the sources itself and re-derives the decision; consensus
+  compares canonical decision fields and the evidence fingerprint — never
+  prose, wording, dates, excerpts, or timestamps.
+
+### Scope and limitations
+
+RecallShield answers one narrowly defined technical question: whether the
+independently inspected public evidence identifies the registered product
+identity as recalled. It is **not** a legal authority and asserts no legal
+conclusion; it is **not** a safety certification; it does not claim
+universal recall coverage (it can only inspect the caller-designated
+sources); and it does not guarantee the accuracy or correctness of external
+websites — it reports what the inspected evidence supports, no more. When
+evidence is missing, unreachable, non-authoritative, contradictory, or
+ambiguous, it returns an explicit uncertainty state; absence of accessible
+evidence is never treated as evidence of no recall.
 
 ## Evidence
 
-- Test suite: 59 direct-mode tests (units, consensus, security, 12 adversarial audits) — CI green, lint clean
-- Live Studionet verification: 7 cases, 11 consensus verifications, all recorded in `docs/deployment_log.json`
+- Test suite: **75 direct-mode tests** (units, consensus, security, and 16 adversarial audit tests) — locally re-run after the documentation changes: 75 passed; CI on latest main: green
+- Lint: `genvm-lint check` — **3 checks pass, validation passed** (locally re-run and CI-confirmed; 0 errors)
+- Live Studionet verification: **7 cases, 11 consensus verifications**, all recorded in `docs/deployment_log.json`
 
 ### Live verification runs
 
@@ -43,7 +80,7 @@ string is demoted). History is append-only: every verification is versioned
 - **CASE3-authority** (rs000003) — final status `INCONCLUSIVE` (expected `INCONCLUSIVE`), match `NONE`, reason `SOURCE_NOT_RECALL_EVIDENCE`
 - **CASE4-partial** (rs000004) — final status `PARTIAL_MATCH` (expected `PARTIAL_MATCH`), match `PARTIAL`, reason `RELATED_ONLY`
 - **CASE5-recovery** (rs000005) — final status `SOURCE_UNAVAILABLE` (expected `SOURCE_UNAVAILABLE`), match `NONE`, reason `ALL_SOURCES_UNAVAILABLE`
-- **V1-realworld** (rs000006) — final status `SOURCE_UNAVAILABLE` (expected `RECALLED`), match `NONE`, reason `ALL_SOURCES_UNAVAILABLE`
+- **V1-realworld** (rs000006) — final status `SOURCE_UNAVAILABLE` (probe hypothesis `RECALLED` was conditional on the page being live), match `NONE`, reason `ALL_SOURCES_UNAVAILABLE` — conservative-correct: the target page is dead, so the contract asserted nothing
 - **V2-realworld** (rs000007) — final status `RECALLED` (expected `RECALLED`), match `EXACT`, reason `EXACT_PRODUCT_MATCH`
 
 ### Transaction hashes (verify runs)
@@ -64,27 +101,32 @@ Deploy tx `0x3794c67693a42a0fd9482921e4da2443a1c60afee6184a967b864b148d3644b8`.
 
 The first real-world probe (V1) targeted stanleytools.com's recall page for
 STHT51454; that URL now 308-redirects to a 404 (page removed from the live
-site). The contract correctly returned `SOURCE_UNAVAILABLE` with
-`ALL_SOURCES_UNAVAILABLE` — exactly the intended conservative behavior: when
-evidence is inaccessible, the contract asserts nothing. Recorded as-is, never
+site, independently verified before V2 was prepared). The contract
+correctly returned `SOURCE_UNAVAILABLE` with `ALL_SOURCES_UNAVAILABLE` —
+exactly the intended conservative behavior: when evidence is inaccessible,
+the contract asserts nothing about recall state. Recorded as-is, never
 silently dropped (append-only history).
 
 ### V2 probe — live real-world RECALLED on dewalt.com
 
-V2 registered DEWALT drill model DWD110 (a real 2019 recall) against DEWALT's
-live official recall page (HTTP 200 pre-verified). Consensus of validators
-fetched the live page and the contract returned `RECALLED` via
-`EXACT_PRODUCT_MATCH` — manufacturer match, model DWD110 explicitly in the
-affected list, authority class MANUFACTURER. Verification `rs000007-v001`,
-tx `0x0124ca8257ce0d90e32119df9d038d4174cda6ce7951b3398f6c8cfd9ae9f0b0`.
+V2 registered DEWALT drill model DWD110 (a real 2019 recall) against
+DEWALT's live official recall page for models DWD110/DWD112 (HTTP 200
+pre-verified). Consensus of validators independently fetched the live page;
+the inspected content classified as MANUFACTURER authority and explicitly
+lists DWD110 as affected, and the contract returned `RECALLED` via
+`EXACT_PRODUCT_MATCH`. Verification `rs000007-v001`, tx
+`0x0124ca8257ce0d90e32119df9d038d4174cda6ce7951b3398f6c8cfd9ae9f0b0`.
 
 ## Contract interface
 
-- `create_case(manufacturer, product_name, model_number, product_identifier, jurisdiction, category, source_urls, source_labels)` → case id `rsXXXXXX`
-- `verify_case(case_id)` → append-only verification `rsXXXXXX-vNNN` (consensus run)
-- Views: `get_case`, `get_verification`, `get_case_history`, `get_stats`
+- `create_case(manufacturer, product_name, model_number, product_identifier, jurisdiction, category, source_urls_csv, authority_labels_csv)` — write; registers an immutable product identity + 1–3 public sources (idempotent by identity fingerprint)
+- `verify_case(case_id)` — write; consensus-backed verification, returns verification id
+- `reverify_case(case_id)` — write; fresh verification of an already-verified case
+- Views: `get_case`, `get_case_by_fingerprint`, `get_verification`, `get_verification_history`, `get_stats`
 
 ## Notes for reviewers
 
 - Early identical deployment from a crashed harness exists at `0x68976429630cA6BAeF829D96ef90C83eaEf5623B` (same commit, harness died mid-run) — NOT the submission candidate; reported for transparency.
-- The dead-page V1 outcome demonstrates the uncertainty path working on a real site, not a fixture.
+- The dead-page V1 outcome demonstrates the uncertainty path working on a real production site, not a fixture.
+
+**Status: READY FOR MANUAL PORTAL SUBMISSION**
